@@ -4,3 +4,13 @@ export interface LogInArgs {
 		password: string;
 	};
 }
+export interface ForgotPasswordArgs {
+	input: {
+		email: string;
+	};
+}
+export interface ResetPasswordArgs {
+	input: {
+		password: string;
+	};
+}
