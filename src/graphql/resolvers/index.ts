@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { Database, User } from "../../lib/types";
 import { LogInArgs, ForgotPasswordArgs, ResetPasswordArgs } from "./types";
+import { createWriteStream, createReadStream, exists } from "fs";
+import { authorize } from "../../lib/utils";
 
 const createJWT = (id: string) => {
 	if (process.env.JWT_SECRET && process.env.JWT_EXPIRES_IN) {
@@ -94,6 +96,33 @@ export const resolvers: IResolvers = {
 			} catch (error) {
 				if (error.message) throw new Error(error.message);
 				throw new Error("Failed to reset Password");
+			}
+		},
+		singleUpload: async (
+			_root,
+			{ file },
+			{ req, db }: { req: any; db: Database }
+		) => {
+			try {
+				const user = await authorize(req, db);
+				if (!user) throw new Error("user doesn't exist");
+				let { createReadStream, filename } = await file;
+				filename = `${user._id + "-" + filename}`;
+				if (user.files.includes(filename)) {
+					throw new Error("filename already exists");
+				}
+				const wstream = createWriteStream(`uploadedFiles/${filename}`);
+				createReadStream().on("data", (chunk: any) => {
+					wstream.write(chunk);
+				});
+				await db.users.findOneAndUpdate(
+					{ _id: user._id },
+					{ $push: { files: filename } }
+				);
+				return { filename };
+			} catch (error) {
+				if (error.message) throw new Error(error.message);
+				throw new Error("failed to upload file");
 			}
 		},
 	},

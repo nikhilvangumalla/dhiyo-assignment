@@ -11,6 +11,9 @@ export const typeDefs = gql`
 	input resetPasswordInput {
 		password: String!
 	}
+	type File {
+		filename: String!
+	}
 	type JwtToken {
 		token: String!
 	}
@@ -23,5 +26,6 @@ export const typeDefs = gql`
 	type Mutation {
 		forgotPassword(input: forgotPasswordInput!): ResetToken!
 		resetPassword(input: resetPasswordInput!): String!
+		singleUpload(file: Upload!): File!
 	}
 `;

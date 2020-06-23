@@ -12,3 +12,8 @@ export interface User {
 export interface Database {
 	users: Collection<User>;
 }
+export interface DecodedData {
+	id: string;
+	iat: number;
+	exp: number;
+}
